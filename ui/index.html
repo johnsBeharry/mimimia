@@ -1,12 +1,112 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>marketplace-ui</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <!-- built files will be auto injected -->
-  </body>
+		<head>
+				<title></title>
+				<meta charset="utf-8"/>
+				<script src="./crypto.bundle.js?312"></script>
+ 				<script src="https://unpkg.com/ipfs/dist/index.min.js"></script>
+				<link rel="stylesheet" type="text/css" href="./styles.css">>
+		</head>
+		<body>
+			<form id="create-listing">
+				<p><input type="file" id="photo"></p>
+				<p><img src="http://placehold.it/200x200" id="unencrypted"></p>
+				<p><img src="" id="decrypted"></p>
+
+				<label>
+					<h3>Title</h3>
+					<p><input type="text" id="title"></p>
+				</label>
+
+				<label>
+					<h3>Price</h3>
+					<p><input type="number" id="price"></p>
+				</label>
+
+				<label>
+					<h3>Description</h3>
+					<p><textarea></textarea></p>
+				</label>
+
+				<p><input type="submit" value="Create Listing"></p>
+			</form>
+			<script type="text/javascript">
+				const EthCrypto = window.EthCrypto;
+				const ipfs = new window.Ipfs({host: 'ipfs.infura.io', port: 5001, protocol: 'https'})
+				const reader = new FileReader();
+
+				const form = document.querySelector("#create-listing");
+				const photo = document.querySelector("#photo");
+
+				photo.addEventListener("change", processImage);
+				form.addEventListener("submit", upload, true);
+
+				const alice = EthCrypto.createIdentity();
+				const bob = EthCrypto.createIdentity();
+				const secretMessage = 'some arbitrary data';
+				
+				function encrypt(data) {
+						EthCrypto.encryptWithPublicKey(
+							bob.publicKey,
+							JSON.stringify(data)
+							)
+							.then((encrypted)=>{
+								console.log('encrypted',encrypted);
+								put(encrypted);
+								EthCrypto.decryptWithPrivateKey(
+									bob.privateKey,
+									encrypted
+									)
+									.then((decrypted)=>{
+										var x = document.querySelector("img#decrypted");
+										x.src = stripEndQuotes(decrypted);
+										console.log('decrypted',decrypted);
+									})
+									.catch((error)=>{
+										console.log('error',error);
+									})
+							})
+							.catch((error)=>{
+								console.log('error',error);
+							});
+				}
+
+				function stripEndQuotes(s){
+					var t=s.length;
+					if (s.charAt(0)=='"') s=s.substring(1,t--);
+					if (s.charAt(--t)=='"') s=s.substring(0,t);
+					return s;
+				}
+
+				function processImage() {
+					console.log("start encryption");
+					var preview = document.querySelector("img#unencrypted");
+					var file = document.querySelector("input[type=file]").files[0];
+
+					reader.addEventListener("load", function () {
+					  preview.src = reader.result;
+					  encrypt(reader.result);
+					}, false);
+
+					if (file) {
+					  reader.readAsDataURL(file);
+					}
+				}
+
+				function upload(event) {
+					event.preventDefault();
+				}
+
+				function put(imgBuffer){
+					ipfs.files.add(imgBuffer, (err, result) => {
+						if(err) {
+							console.error(err)
+							return
+						}
+						let url = `https://ipfs.io/ipfs/${result[0].hash}`
+						console.log(`Url --> ${url}`)
+					})
+				}
+			</script>
+		</body>
 </html>
