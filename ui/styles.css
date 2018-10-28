@@ -41,6 +41,7 @@ textarea {
 	box-sizing: border-box;
 	background-color: #F9F9F9;
 	box-shadow: 0 3px 0 #F9F9F9;
+	font-family: sans-serif;
 }
 
 input[type=text]:focus,

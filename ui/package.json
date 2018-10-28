@@ -1,0 +1,16 @@
+{
+  "name": "ui",
+  "version": "1.0.0",
+  "description": "marketplace ui",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "eth-crypto": "^1.2.4",
+    "ipfs": "^0.32.3",
+    "web3": "^1.0.0-beta.36"
+  }
+}
